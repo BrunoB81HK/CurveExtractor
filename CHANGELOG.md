@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 
+- Nothing
+
+## [2.3] - 2022-06-01
+
 - Changed the icon.
 - Added a graph generator for testing purposes.
 - Added a magnifying glass to select the coordinate.
