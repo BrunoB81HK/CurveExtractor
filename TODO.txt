@@ -1,4 +1,0 @@
-- afficher l'équation vs les points (les points sont généré, reste à les afficher)
-- Faire le ménage
-- Logarithmic axis
-- Manual data choice
