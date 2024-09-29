@@ -1,5 +1,5 @@
-# CurveFinder
-Simple app to let you find the equations from a graph
+# CurveExtractor
+Simple app to let you extract the equations from a graph
 
 ### To do for 2.5
 - [ ] Test the log axis function

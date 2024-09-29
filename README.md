@@ -1,8 +1,8 @@
-# CurveFinder
+# CurveExtractor
 
 ![Build status](https://github.com/BrunoB81HK/CurveFinder/actions/workflows/build_and_release.yml/badge.svg)
 
-Simple app to let you find the equations from a graph
+Simple app to let you extract the equations from a graph
 
 ### Building with pyinstaller
 

@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "CurveExtractor"
+version = "3.0"
+description = "Simple app to let you extract the equations from a graph"
+readme = "README.md"
+authors = [
+    { name = "Bruno-Pier Busque", email = "curve-extractor-dev@outlook.com" },
+]
+maintainers = [
+    { name = "Bruno-Pier Busque", email = "curve-extractor-dev@outlook.com" },
+]
+dependencies = [
+    "matplotlib",
+    "PyQt6",
+    "opencv-python",
+    "numpy",
+    "pyinstaller",
+    "scipy",
+    "Pillow",
+    "darkdetect",
+]
+requires-python = ">=3.10"
+license = { file = "LICENSE.txt" }
+keywords = ["curve", "extractor", "finder", "equation"]
+classifiers = ["Programming Language :: Python"]
+
+[project.optional-dependencies]
+gui = ["PyQt5"]
+cli = ["rich", "click"]
+
+[project.urls]
+Repository = "https://github.com/BrunoB81HK/CurveExtractor.git"
+"Bug Tracker" = "https://github.com/BrunoB81HK/CurveExtractor/issues"
+Changelog = "https://github.com/BrunoB81HK/CurveExtractor/blob/master/CHANGELOG.md"
