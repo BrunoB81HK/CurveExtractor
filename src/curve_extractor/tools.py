@@ -7,7 +7,6 @@ import cv2
 
 
 class CurveFinder:
-
     def __init__(self) -> None:
         self.graph = self.Graph()
         self.x1_graph: float = 0
@@ -38,8 +37,8 @@ class CurveFinder:
             x1_graph = mt.log10(self.x1_graph)
 
         dx_pixel = self.graph.x_axis.x2_pixel - self.graph.x_axis.x1_pixel
-        self.dx_pixel_to_graph = dx_graph/dx_pixel
-        self.cx = x1_graph - self.dx_pixel_to_graph*self.graph.x_axis.x1_pixel
+        self.dx_pixel_to_graph = dx_graph / dx_pixel
+        self.cx = x1_graph - self.dx_pixel_to_graph * self.graph.x_axis.x1_pixel
 
         if self.y_is_lin:
             dy_graph = self.y2_graph - self.y1_graph
@@ -49,8 +48,8 @@ class CurveFinder:
             y1_graph = mt.log10(self.y1_graph)
 
         dy_pixel = self.graph.y_axis.y2_pixel - self.graph.y_axis.y1_pixel
-        self.dy_pixel_to_graph = dy_graph/dy_pixel
-        self.cy = y1_graph - self.dy_pixel_to_graph*self.graph.y_axis.y1_pixel
+        self.dy_pixel_to_graph = dy_graph / dy_pixel
+        self.cy = y1_graph - self.dy_pixel_to_graph * self.graph.y_axis.y1_pixel
 
     def update_lin_log(self, x_is_lin: bool, y_is_lin: bool, update_all: bool = True):
         self.x_is_lin = x_is_lin
@@ -60,20 +59,22 @@ class CurveFinder:
 
     def get_rotation_matrix(self) -> ndarray:
         self.graph.update()
-        return cv2.getRotationMatrix2D(self.graph.origin, 180*self.graph.angle/mt.pi, 1)
+        return cv2.getRotationMatrix2D(
+            self.graph.origin, 180 * self.graph.angle / mt.pi, 1
+        )
 
     def get_points(self) -> Tuple[Tuple[float, float], ...]:
         return self.graph.get_points()
 
     def pixel_to_graph(self, pt: tuple) -> ndarray:
-        """ Method to convert a pixel coordinate to a graph coordinate """
+        """Method to convert a pixel coordinate to a graph coordinate"""
         x, y = pt
 
-        a = self.dx_pixel_to_graph*x + self.cx
+        a = self.dx_pixel_to_graph * x + self.cx
         if not self.x_is_lin:
             a = mt.pow(10, a)
 
-        b = self.dy_pixel_to_graph*y + self.cy
+        b = self.dy_pixel_to_graph * y + self.cy
         if not self.y_is_lin:
             b = mt.pow(10, b)
 
@@ -90,25 +91,39 @@ class CurveFinder:
 
         def update(self) -> None:
             # Update the angle
-            self.angle = (self.x_axis.angle + self.y_axis.angle)/2
+            self.angle = (self.x_axis.angle + self.y_axis.angle) / 2
 
             # Update the origin
             if self.y_axis.dx == 0:
                 x0 = self.y_axis.pts[1][0]
             else:
-                x0 = (self.y_axis.slope*self.y_axis.pts[0][0] - self.x_axis.slope*self.x_axis.pts[0][0]
-                      + self.x_axis.pts[0][1] - self.y_axis.pts[0][1])/(self.y_axis.slope - self.x_axis.slope)
-            y0 = self.x_axis.slope*(x0 - self.x_axis.pts[0][0]) + self.x_axis.pts[0][1]
+                x0 = (
+                    self.y_axis.slope * self.y_axis.pts[0][0]
+                    - self.x_axis.slope * self.x_axis.pts[0][0]
+                    + self.x_axis.pts[0][1]
+                    - self.y_axis.pts[0][1]
+                ) / (self.y_axis.slope - self.x_axis.slope)
+            y0 = (
+                self.x_axis.slope * (x0 - self.x_axis.pts[0][0]) + self.x_axis.pts[0][1]
+            )
             self.origin = (x0, y0)
 
             # Update axis attributes
             self.x_axis.y0_pixel = y0
-            self.x_axis.x1_pixel = x0 + (self.x_axis.pts[0][0] - x0)/mt.cos(self.angle)
-            self.x_axis.x2_pixel = x0 + (self.x_axis.pts[1][0] - x0)/mt.cos(self.angle)
+            self.x_axis.x1_pixel = x0 + (self.x_axis.pts[0][0] - x0) / mt.cos(
+                self.angle
+            )
+            self.x_axis.x2_pixel = x0 + (self.x_axis.pts[1][0] - x0) / mt.cos(
+                self.angle
+            )
 
             self.y_axis.x0_pixel = x0
-            self.y_axis.y1_pixel = y0 + (self.y_axis.pts[0][1] - y0)/mt.cos(self.angle)
-            self.y_axis.y2_pixel = y0 + (self.y_axis.pts[1][1] - y0)/mt.cos(self.angle)
+            self.y_axis.y1_pixel = y0 + (self.y_axis.pts[0][1] - y0) / mt.cos(
+                self.angle
+            )
+            self.y_axis.y2_pixel = y0 + (self.y_axis.pts[1][1] - y0) / mt.cos(
+                self.angle
+            )
 
         def get_points(self) -> Tuple[Tuple[float, float], ...]:
             x_p = self.y_axis.x0_pixel
@@ -145,14 +160,16 @@ class CurveFinder:
                 self._pts = pt
                 self.dx = pt[1][0] - pt[0][0]
                 self.dy = pt[1][1] - pt[0][1]
-                self.slope = mt.inf if self.dx == 0 else self.dy/self.dx
+                self.slope = mt.inf if self.dx == 0 else self.dy / self.dx
                 if self.type == self.AxisType.X:
                     self.angle = mt.atan(self.slope)
                 elif self.type == self.AxisType.Y:
-                    self.angle = mt.atan(-1/self.slope)
+                    self.angle = mt.atan(-1 / self.slope)
 
 
-def get_copy_text(mode: CopyOptions, var: str, coefs: list, pts: List[ndarray]) -> Union[str, None]:
+def get_copy_text(
+    mode: CopyOptions, var: str, coefs: list, pts: List[ndarray]
+) -> Union[str, None]:
     order = len(coefs) - 1
     equation = ""
 
@@ -256,14 +273,14 @@ def get_copy_text(mode: CopyOptions, var: str, coefs: list, pts: List[ndarray]) 
             x_r.append(d[0])
             y_r.append(d[1])
 
-        for (i, x) in enumerate(x_r):
+        for i, x in enumerate(x_r):
             if i == 0:
                 text += f"{x}"
             else:
                 text += f" {x}"
 
         text += "];\ny = ["
-        for (i, y) in enumerate(y_r):
+        for i, y in enumerate(y_r):
             if i == 0:
                 text += f"{y}"
             else:
@@ -282,14 +299,14 @@ def get_copy_text(mode: CopyOptions, var: str, coefs: list, pts: List[ndarray]) 
             x_r.append(d[0])
             y_r.append(d[1])
 
-        for (i, x) in enumerate(x_r):
+        for i, x in enumerate(x_r):
             if i == 0:
                 text += f"{x}"
             else:
                 text += f", {x}"
 
         text += "];\ny = ["
-        for (i, y) in enumerate(y_r):
+        for i, y in enumerate(y_r):
             if i == 0:
                 text += f"{y}"
             else:
@@ -308,14 +325,14 @@ def get_copy_text(mode: CopyOptions, var: str, coefs: list, pts: List[ndarray]) 
             x_r.append(d[0])
             y_r.append(d[1])
 
-        for (i, x) in enumerate(x_r):
+        for i, x in enumerate(x_r):
             if i == 0:
                 text += f"{x}"
             else:
                 text += f", {x}"
 
         text += "], ["
-        for (i, y) in enumerate(y_r):
+        for i, y in enumerate(y_r):
             if i == 0:
                 text += f"{y}"
             else:
@@ -335,7 +352,7 @@ def get_copy_text(mode: CopyOptions, var: str, coefs: list, pts: List[ndarray]) 
 
     elif mode == CopyOptions.COEFFS_MATLAB:
         text = "["
-        for (i, coef) in enumerate(coefs):
+        for i, coef in enumerate(coefs):
             if i == 0:
                 text += f"{coef}"
             else:
@@ -346,7 +363,7 @@ def get_copy_text(mode: CopyOptions, var: str, coefs: list, pts: List[ndarray]) 
 
     elif mode == CopyOptions.COEFFS_PYTHON:
         text = "["
-        for (i, coef) in enumerate(coefs):
+        for i, coef in enumerate(coefs):
             if i == 0:
                 text += f"{coef}"
             else:
@@ -357,7 +374,7 @@ def get_copy_text(mode: CopyOptions, var: str, coefs: list, pts: List[ndarray]) 
 
     elif mode == CopyOptions.COEFFS_NUMPY:
         text = "np.array(["
-        for (i, coef) in enumerate(coefs):
+        for i, coef in enumerate(coefs):
             if i == 0:
                 text += f"{coef}"
             else:
@@ -368,7 +385,7 @@ def get_copy_text(mode: CopyOptions, var: str, coefs: list, pts: List[ndarray]) 
 
     elif mode == CopyOptions.POLY1D:
         text = "p = np.poly1d(["
-        for (i, coef) in enumerate(coefs):
+        for i, coef in enumerate(coefs):
             if i == 0:
                 text += f"{coef}"
             else:

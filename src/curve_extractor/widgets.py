@@ -1,6 +1,30 @@
-from PyQt5.QtWidgets import QLabel, QHBoxLayout, QVBoxLayout, QPushButton, QCheckBox, QLineEdit, QTextBrowser, \
-    QSlider, QComboBox, QRadioButton, QSpinBox, QButtonGroup, QTabWidget, QWidget, QColorDialog
-from PyQt5.QtGui import QPixmap, QMouseEvent, QFont, QPainter, QPainterPath, QPen, QColor, QTextDocument
+from PyQt5.QtWidgets import (
+    QLabel,
+    QHBoxLayout,
+    QVBoxLayout,
+    QPushButton,
+    QCheckBox,
+    QLineEdit,
+    QTextBrowser,
+    QSlider,
+    QComboBox,
+    QRadioButton,
+    QSpinBox,
+    QButtonGroup,
+    QTabWidget,
+    QWidget,
+    QColorDialog,
+)
+from PyQt5.QtGui import (
+    QPixmap,
+    QMouseEvent,
+    QFont,
+    QPainter,
+    QPainterPath,
+    QPen,
+    QColor,
+    QTextDocument,
+)
 from PyQt5.QtCore import Qt, pyqtSignal, QPoint, QRect, QSize, QRectF, QSizeF
 
 from typing import List, Tuple
@@ -9,17 +33,16 @@ from .constants import *
 
 
 class QNewLabel(QLabel):
-
     def delete(self) -> None:
         self.setText("")
         self.setParent(None)
 
 
 class QCoordBox(QHBoxLayout):
-    """ Subclass for the a single coordinate box """
+    """Subclass for the a single coordinate box"""
 
     def __init__(self, coord_label: str) -> None:
-        """ Initialise the single coordinate input box """
+        """Initialise the single coordinate input box"""
         super().__init__()
 
         # Set the widgets
@@ -44,21 +67,27 @@ class QCoordBox(QHBoxLayout):
 
 
 class QImage(QLabel):
-    """ The class for the big image box """
+    """The class for the big image box"""
 
     signal: pyqtSignal = pyqtSignal(int, int, Qt.MouseButton)
     zoom = 2
     radius = 60
     border: int = 3
-    pts_colors: Tuple[QColor] = (QColor(204, 0, 0, 150), QColor(0, 153, 0, 150),
-                                 QColor(0, 0, 153, 150), QColor(204, 204, 0, 150))
-    pts_labels: Tuple[str] = ("<p style='color:rgba(204, 0, 0, 150)'>X<sub>1</sub></p>",
-                              "<p style='color:rgba(0, 153, 0, 150)'>X<sub>2</sub></p>",
-                              "<p style='color:rgba(0, 0, 153, 150)'>Y<sub>1</sub></p>",
-                              "<p style='color:rgba(204, 204, 0, 150)'>Y<sub>2</sub></p>")
+    pts_colors: Tuple[QColor] = (
+        QColor(204, 0, 0, 150),
+        QColor(0, 153, 0, 150),
+        QColor(0, 0, 153, 150),
+        QColor(204, 204, 0, 150),
+    )
+    pts_labels: Tuple[str] = (
+        "<p style='color:rgba(204, 0, 0, 150)'>X<sub>1</sub></p>",
+        "<p style='color:rgba(0, 153, 0, 150)'>X<sub>2</sub></p>",
+        "<p style='color:rgba(0, 0, 153, 150)'>Y<sub>1</sub></p>",
+        "<p style='color:rgba(204, 204, 0, 150)'>Y<sub>2</sub></p>",
+    )
 
     def __init__(self, image_path: str) -> None:
-        """ Initialise the image of the graph """
+        """Initialise the image of the graph"""
         super().__init__()
 
         self.source: str = image_path  # Set the image
@@ -80,7 +109,7 @@ class QImage(QLabel):
         self.pts: List[QPoint, QPoint, QPoint, QPoint] = [None, None, None, None]
 
     def mousePressEvent(self, ev: QMouseEvent) -> None:
-        """ Event when mouse is pressed on the image """
+        """Event when mouse is pressed on the image"""
         x, y = self.get_xy_from_event(ev)
 
         if self.clickEnabled:
@@ -93,7 +122,7 @@ class QImage(QLabel):
             self.emit_signal(ev)
 
     def mouseMoveEvent(self, ev: QMouseEvent) -> None:
-        """ Event when mouse is moved on the image """
+        """Event when mouse is moved on the image"""
         x, y = self.get_xy_from_event(ev)
 
         if self.maskEnabled:
@@ -105,7 +134,7 @@ class QImage(QLabel):
             self.add_zoom(x, y)
 
     def mouseReleaseEvent(self, ev: QMouseEvent) -> None:
-        """ Event when mouse is released on the image """
+        """Event when mouse is released on the image"""
         self.holding = False
         self.button = Qt.MouseButton.NoButton
 
@@ -136,18 +165,24 @@ class QImage(QLabel):
             self.num_printed_coord += 1
 
     def add_mask(self, x: int, y: int) -> None:
-        rectangle = QRect(QPoint(x - self.brush_radius, y - self.brush_radius),
-                          2*self.brush_radius*QSize(1, 1))
+        rectangle = QRect(
+            QPoint(x - self.brush_radius, y - self.brush_radius),
+            2 * self.brush_radius * QSize(1, 1),
+        )
         overlay_pixmap = self.base_pixmap.copy(rectangle)
         crosshair_pixmap = self.base_pixmap.copy(rectangle)
 
         # If holding, add the mask
-        if self.holding and self.button == Qt.MouseButton.LeftButton or self.button == Qt.MouseButton.RightButton:
+        if (
+            self.holding
+            and self.button == Qt.MouseButton.LeftButton
+            or self.button == Qt.MouseButton.RightButton
+        ):
             brush_painter = QPainter(overlay_pixmap)
             if self.button == Qt.MouseButton.LeftButton:
-                pen = QPen(QColor(255, 0, 0, 100), 3*self.brush_radius)
+                pen = QPen(QColor(255, 0, 0, 100), 3 * self.brush_radius)
             elif self.button == Qt.MouseButton.RightButton:
-                pen = QPen(QColor(255, 0, 0, 0), 3*self.brush_radius)
+                pen = QPen(QColor(255, 0, 0, 0), 3 * self.brush_radius)
             brush_painter.setPen(pen)
             brush_painter.drawPoint(overlay_pixmap.rect().center())
             brush_painter.end()
@@ -155,7 +190,7 @@ class QImage(QLabel):
         # Add a contour to visualize where you paint
         crosshair_painter = QPainter(crosshair_pixmap)
         if self.holding and self.button == Qt.MouseButton.LeftButton:
-            pen = QPen(QColor(255, 0, 0, 100), 3*self.brush_radius)
+            pen = QPen(QColor(255, 0, 0, 100), 3 * self.brush_radius)
             crosshair_painter.setPen(pen)
             crosshair_painter.drawPoint(overlay_pixmap.rect().center())
         crosshair_painter.setPen(QPen(QColor(255, 255, 255, 80), 3))
@@ -163,31 +198,46 @@ class QImage(QLabel):
         crosshair_painter.end()
 
         path = QPainterPath()
-        rectangle = QRectF(QPoint(x - self.brush_radius, y - self.brush_radius), 2*self.brush_radius*QSizeF(1, 1))
+        rectangle = QRectF(
+            QPoint(x - self.brush_radius, y - self.brush_radius),
+            2 * self.brush_radius * QSizeF(1, 1),
+        )
         path.addEllipse(rectangle)
 
         # If holding, add the mask to the updated pixmap
         if self.holding:
             mask_painter = QPainter(self.updated_pixmap)
-            mask_painter.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+            mask_painter.setRenderHints(
+                QPainter.Antialiasing | QPainter.SmoothPixmapTransform
+            )
             mask_painter.setClipPath(path, Qt.IntersectClip)
-            mask_painter.drawPixmap(QPoint(x - self.brush_radius, y - self.brush_radius), overlay_pixmap)
+            mask_painter.drawPixmap(
+                QPoint(x - self.brush_radius, y - self.brush_radius), overlay_pixmap
+            )
             mask_painter.end()
 
         # Add the crosshair to the pixmap
         rendered_pixmap = self.updated_pixmap.copy()
         final_crosshair_painter = QPainter(rendered_pixmap)
-        final_crosshair_painter.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+        final_crosshair_painter.setRenderHints(
+            QPainter.Antialiasing | QPainter.SmoothPixmapTransform
+        )
         final_crosshair_painter.setClipPath(path, Qt.IntersectClip)
-        final_crosshair_painter.drawPixmap(QPoint(x - self.brush_radius, y - self.brush_radius), crosshair_pixmap)
+        final_crosshair_painter.drawPixmap(
+            QPoint(x - self.brush_radius, y - self.brush_radius), crosshair_pixmap
+        )
         final_crosshair_painter.end()
 
         self.setPixmap(rendered_pixmap)
 
     def add_zoom(self, x: int, y: int) -> None:
         base_pixmap = self.base_pixmap.copy()
-        rectangle = QRect(QPoint(x - self.radius/2, y - self.radius/2), self.radius*QSize(1, 1))
-        overlay_pixmap = base_pixmap.copy(rectangle).scaledToWidth(self.zoom*self.radius, Qt.SmoothTransformation)
+        rectangle = QRect(
+            QPoint(x - self.radius / 2, y - self.radius / 2), self.radius * QSize(1, 1)
+        )
+        overlay_pixmap = base_pixmap.copy(rectangle).scaledToWidth(
+            self.zoom * self.radius, Qt.SmoothTransformation
+        )
 
         crosshair = QPainter(overlay_pixmap)
         crosshair.setPen(QPen(Qt.white, 3))
@@ -198,7 +248,7 @@ class QImage(QLabel):
         crosshair.drawEllipse(overlay_pixmap.rect())
         crosshair.end()
 
-        rectangle_zoomed = QRectF(QPoint(x, y), self.zoom*self.radius*QSizeF(1, 1))
+        rectangle_zoomed = QRectF(QPoint(x, y), self.zoom * self.radius * QSizeF(1, 1))
         path = QPainterPath()
         path.addEllipse(rectangle_zoomed)
 
@@ -248,38 +298,40 @@ class QImage(QLabel):
 
     @property
     def maskEnabled(self) -> bool:
-        """ Return if maskEnable is true or not """
+        """Return if maskEnable is true or not"""
         return self._maskEnabled
 
     @maskEnabled.setter
     def maskEnabled(self, a0: bool) -> None:
-        """ Set the maskEnable attribute """
+        """Set the maskEnable attribute"""
         self._maskEnabled = a0
         self.updated_pixmap = self.source.copy()
 
     @property
     def coordEnabled(self) -> bool:
-        """ Return if coordEnable is true or not """
+        """Return if coordEnable is true or not"""
         return self._coordEnabled
 
     @coordEnabled.setter
     def coordEnabled(self, a0: bool) -> None:
-        """ Set the coordEnable attribute """
+        """Set the coordEnable attribute"""
         self._coordEnabled = a0
         self.updated_pixmap = self.source.copy()
         self.num_printed_coord = 0
 
     @property
     def source(self) -> QPixmap:
-        """ Return the image """
+        """Return the image"""
         return self._source
 
     @source.setter
     def source(self, src: str) -> None:
-        """ Set the image and resize it to fit in the box """
+        """Set the image and resize it to fit in the box"""
         self.img_path = src  # Save the path
         new_img = QPixmap(src)  # Load the image
-        self._source = new_img.scaled(MAX_IMG_W, MAX_IMG_H, Qt.KeepAspectRatio)  # Save the rescaled source image
+        self._source = new_img.scaled(
+            MAX_IMG_W, MAX_IMG_H, Qt.KeepAspectRatio
+        )  # Save the rescaled source image
         self.image_size = (self._source.height(), self._source.width())
         self._source.save(src)  # Save the resized image
         self.setPixmap(self._source)  # Display the image
@@ -287,10 +339,10 @@ class QImage(QLabel):
 
 
 class QInstructBox(QVBoxLayout):
-    """ Class for the instruction box widget """
+    """Class for the instruction box widget"""
 
     def __init__(self) -> None:
-        """ Initialise the Instruction box """
+        """Initialise the Instruction box"""
         super().__init__()
 
         # Create the  widgets
@@ -309,7 +361,6 @@ class QInstructBox(QVBoxLayout):
 
 
 class QOptionsTemplate(QVBoxLayout):
-
     def __init__(self, main_label: str) -> None:
         super().__init__()
 
@@ -330,16 +381,16 @@ class QOptionsTemplate(QVBoxLayout):
 
 
 class QCoordOption(QOptionsTemplate):
-    """ The class for the coordinate inputs box """
+    """The class for the coordinate inputs box"""
 
     pts_labels: Tuple[str] = ("X1", "X2", "Y1", "Y2")
 
     def __init__(self) -> None:
-        """ Initialise the coordinate inputs """
+        """Initialise the coordinate inputs"""
         super().__init__("Coordinates :")
 
         # Init the pts and them characteristics
-        self.pts: List[Tuple[int, int]] = [(-1, -1)]*4
+        self.pts: List[Tuple[int, int]] = [(-1, -1)] * 4
 
         # Create the widgets
         self.x1_coord: QCoordBox = QCoordBox(self.pts_labels[0])
@@ -357,7 +408,7 @@ class QCoordOption(QOptionsTemplate):
         self.initValues()
 
     def initValues(self) -> None:
-        """ Initialise the coordinate statuses """
+        """Initialise the coordinate statuses"""
         self.x1_done = False
         self.x2_done = False
         self.y1_done = False
@@ -365,12 +416,12 @@ class QCoordOption(QOptionsTemplate):
 
     @property
     def x1_done(self) -> bool:
-        """ Return if x1 is done """
+        """Return if x1 is done"""
         return self._x1_done
 
     @x1_done.setter
     def x1_done(self, status: bool) -> None:
-        """ Set x1 and check the box """
+        """Set x1 and check the box"""
         self._x1_done = status
         self.x1_coord.check.setChecked(status)
         if not status:
@@ -378,12 +429,12 @@ class QCoordOption(QOptionsTemplate):
 
     @property
     def x2_done(self) -> bool:
-        """ Return if x2 is done """
+        """Return if x2 is done"""
         return self._x2_done
 
     @x2_done.setter
     def x2_done(self, status: bool) -> None:
-        """ Set x2 and check the box """
+        """Set x2 and check the box"""
         self._x2_done = status
         self.x2_coord.check.setChecked(status)
         if not status:
@@ -391,12 +442,12 @@ class QCoordOption(QOptionsTemplate):
 
     @property
     def y1_done(self) -> bool:
-        """ Return if y1 is done """
+        """Return if y1 is done"""
         return self._y1_done
 
     @y1_done.setter
     def y1_done(self, status: bool) -> None:
-        """ Set y1 and check the box """
+        """Set y1 and check the box"""
         self._y1_done = status
         self.y1_coord.check.setChecked(status)
         if not status:
@@ -404,12 +455,12 @@ class QCoordOption(QOptionsTemplate):
 
     @property
     def y2_done(self) -> bool:
-        """ Return if y2 is done """
+        """Return if y2 is done"""
         return self._y2_done
 
     @y2_done.setter
     def y2_done(self, status: bool) -> None:
-        """ Set y2 and check the box """
+        """Set y2 and check the box"""
         self._y2_done = status
         self.y2_coord.check.setChecked(status)
         if not status:
@@ -424,10 +475,24 @@ class QCoordOption(QOptionsTemplate):
 
 
 class QContoursOption(QOptionsTemplate):
-    treshs: Tuple[Tuple[bool]] = ((True, True), (True, True), (False, False), (False, False),
-                                  (False, False), (False, False), (False, False))
-    tresh_ext: Tuple[Tuple[int]] = ((-1000, 1000, -1000, 1000), (0, 255, 0, 255), (0, 1, 0, 1), (0, 1, 0, 1),
-                                    (0, 1, 0, 1), (0, 1, 0, 1), (0, 1, 0, 1))
+    treshs: Tuple[Tuple[bool]] = (
+        (True, True),
+        (True, True),
+        (False, False),
+        (False, False),
+        (False, False),
+        (False, False),
+        (False, False),
+    )
+    tresh_ext: Tuple[Tuple[int]] = (
+        (-1000, 1000, -1000, 1000),
+        (0, 255, 0, 255),
+        (0, 1, 0, 1),
+        (0, 1, 0, 1),
+        (0, 1, 0, 1),
+        (0, 1, 0, 1),
+        (0, 1, 0, 1),
+    )
 
     def __init__(self) -> None:
         super().__init__("Contour options :")
@@ -463,8 +528,8 @@ class QContoursOption(QOptionsTemplate):
         self.vbox.addWidget(self.slider2)
 
     def combo_change(self, text) -> None:
-        """ Method to change the slider values based on the combobox text """
-        for (i, op) in enumerate(CONTOUR_OPTIONS_TEXT):
+        """Method to change the slider values based on the combobox text"""
+        for i, op in enumerate(CONTOUR_OPTIONS_TEXT):
             if text == op:
                 self.slider1.setEnabled(self.treshs[i][0])
                 self.slider1.setValue(0)
@@ -526,13 +591,19 @@ class QColorsOption(QOptionsTemplate):
             self.color = QColorDialog.getColor()
             self.color_changed.emit()
         self.rect_color.setText(self.color.name())
-        luminance = (0.299*self.color.red() + 0.587*self.color.green() + 0.114*self.color.blue())/255
-        self.rect_color.setStyleSheet("QLabel{border-style: outset;"
-                                      "border-width: 2px;"
-                                      "border-radius: 10px;"
-                                      "border-color: black;"
-                                      f"color: {'black' if luminance > 0.5 else 'white'}}}"
-                                      f"QWidget{{background-color: {self.color.name():s};}}")
+        luminance = (
+            0.299 * self.color.red()
+            + 0.587 * self.color.green()
+            + 0.114 * self.color.blue()
+        ) / 255
+        self.rect_color.setStyleSheet(
+            "QLabel{border-style: outset;"
+            "border-width: 2px;"
+            "border-radius: 10px;"
+            "border-color: black;"
+            f"color: {'black' if luminance > 0.5 else 'white'}}}"
+            f"QWidget{{background-color: {self.color.name():s};}}"
+        )
 
     def delete(self) -> None:
         self.label_color.delete()
@@ -544,7 +615,6 @@ class QColorsOption(QOptionsTemplate):
 
 
 class QFilterOption(QOptionsTemplate):
-
     def __init__(self) -> None:
         super().__init__("Filters :")
 
@@ -569,7 +639,6 @@ class QFilterOption(QOptionsTemplate):
 
 
 class QEdgeSelectionOption(QOptionsTemplate):
-
     def __init__(self) -> None:
         super().__init__("Edge selection options :")
 
@@ -592,7 +661,6 @@ class QEdgeSelectionOption(QOptionsTemplate):
 
 
 class QEvaluationOptions(QOptionsTemplate):
-
     def __init__(self) -> None:
         super().__init__("Evaluation options :")
 

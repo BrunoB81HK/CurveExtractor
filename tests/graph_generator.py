@@ -51,7 +51,6 @@ def coeffs_to_title(coeffs: Tuple[float, ...]) -> str:
     equation = ""
     order = len(coeffs) - 1
     for c, o in zip(coeffs, range(order, 0, -1)):
-
         if o == order:
             equation += f"{c:0.1f}"
         else:
@@ -66,7 +65,7 @@ def coeffs_to_title(coeffs: Tuple[float, ...]) -> str:
 
 
 # Global actions
-plt.rcParams.update({'font.size': 20})
+plt.rcParams.update({"font.size": 20})
 plt.style.use(STYLE)
 
 # Plot the placeholder
@@ -86,7 +85,7 @@ if PLACEHOLDER_RUN:
             amp = np.random.uniform(-1, 1)
             freq = np.random.uniform(0.1, 2)
             is_sin = np.random.choice([True, False])
-            data += amp*np.sin(freq*x) if is_sin else amp*np.cos(freq*x)
+            data += amp * np.sin(freq * x) if is_sin else amp * np.cos(freq * x)
 
     # Generating the plot
     plt.figure()
@@ -128,7 +127,7 @@ if KNOWN_XLOG_YLIN_RUN:
     plt.title(coeffs_to_title(KNOWN_XLOG_YLIN_COEFFS))
     plt.xlabel(KNOWN_XLOG_YLIN_XLABEL)
     plt.ylabel(KNOWN_XLOG_YLIN_YLABEL)
-    plt.xscale('log')
+    plt.xscale("log")
     plt.savefig(KNOWN_XLOG_YLIN_FILENAME, dpi=150, bbox_inches="tight")
 
 # Plot the known x log y lin
@@ -145,7 +144,7 @@ if KNOWN_XLIN_YLOG_RUN:
     plt.title(coeffs_to_title(KNOWN_XLIN_YLOG_COEFFS))
     plt.xlabel(KNOWN_XLIN_YLOG_XLABEL)
     plt.ylabel(KNOWN_XLIN_YLOG_YLABEL)
-    plt.yscale('log')
+    plt.yscale("log")
     plt.savefig(KNOWN_XLIN_YLOG_FILENAME, dpi=150, bbox_inches="tight")
 
 # Plot the known x log y lin
@@ -162,6 +161,6 @@ if KNOWN_XLOG_YLOG_RUN:
     plt.title(coeffs_to_title(KNOWN_XLOG_YLOG_COEFFS))
     plt.xlabel(KNOWN_XLOG_YLOG_XLABEL)
     plt.ylabel(KNOWN_XLOG_YLOG_YLABEL)
-    plt.xscale('log')
-    plt.yscale('log')
+    plt.xscale("log")
+    plt.yscale("log")
     plt.savefig(KNOWN_XLOG_YLOG_FILENAME, dpi=150, bbox_inches="tight")

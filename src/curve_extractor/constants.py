@@ -40,7 +40,7 @@ class ContourOptions(IntEnum):
 
 
 # APPLICATION DATA
-VER = "2.5"
+VER = "3.0"
 AUTHOR = "Bruno-Pier Busque"
 
 APP_WIDTH = 1500
@@ -50,7 +50,9 @@ MAX_IMG_W = 1200
 MAX_IMG_H = 730
 
 # PATHS
-RESOURCES_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../resources/"))
+RESOURCES_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "../resources/")
+)
 ICON_PATH = os.path.join(RESOURCES_PATH, "icon.ico")
 PH_IMAGE_PATH = os.path.join(RESOURCES_PATH, "placeholder.png")
 TEMP_PATH = os.path.join(RESOURCES_PATH, "temp/")
@@ -65,26 +67,50 @@ PLOT_IMG = os.path.join(TEMP_PATH, "plotted_img.png")
 
 # TEXTS
 INITIAL_TEXT = "Select an image by pressing the `Select an image` button at the bottom and press `Start`."
-STARTED_TEXT = "Click on 2 points for each axis in this order:\n\n" \
-               "\tX1 -> X2 -> Y1 -> Y2\n" \
-               "Enter their coordinates in the boxes below."
-FILTER_CHOICE_TEXT = "Adjust the image so that the curve you want to extract " \
-                     "is clearly visible and free of nearby obstacles. You can achieve this" \
-                     "with either the contours or the colors mode.\n\n" \
-                     "When done, press `Next`"
-EDGE_SELECTION_TEXT = "Press and hold the left mouse button over the curve you want to extract. All the " \
-                      '"painted" multi-colored points will be extracted.\n\n' \
-                      "If you wish to cancel some point that are painted, simply press and hold the right " \
-                      "mouse button over the curve. \n\n" \
-                      "When you selected all the curve, press `Next` to extract " \
-                      "the data points."
+STARTED_TEXT = (
+    "Click on 2 points for each axis in this order:\n\n"
+    "\tX1 -> X2 -> Y1 -> Y2\n"
+    "Enter their coordinates in the boxes below."
+)
+FILTER_CHOICE_TEXT = (
+    "Adjust the image so that the curve you want to extract "
+    "is clearly visible and free of nearby obstacles. You can achieve this"
+    "with either the contours or the colors mode.\n\n"
+    "When done, press `Next`"
+)
+EDGE_SELECTION_TEXT = (
+    "Press and hold the left mouse button over the curve you want to extract. All the "
+    '"painted" multi-colored points will be extracted.\n\n'
+    "If you wish to cancel some point that are painted, simply press and hold the right "
+    "mouse button over the curve. \n\n"
+    "When you selected all the curve, press `Next` to extract "
+    "the data points."
+)
 EQUATION_TEXT = ""
 
 # COPY OPTIONS
-COPY_OPTIONS_TEXT = ("Equation - Matlab", "Equation - Python", "Equation - Markdown", "Equation - Latex",
-                     "Equation - Excel lambda (point)", "Equation - Excel lambda (comma)",
-                     "Points - Matlab", "Points - Python", "Points - NumPy", "Points - CSV",
-                     "Coeff. - Matlab", "Coeff. - Python", "Coeff. - NumPy", "Poly1D - NumPy")
+COPY_OPTIONS_TEXT = (
+    "Equation - Matlab",
+    "Equation - Python",
+    "Equation - Markdown",
+    "Equation - Latex",
+    "Equation - Excel lambda (point)",
+    "Equation - Excel lambda (comma)",
+    "Points - Matlab",
+    "Points - Python",
+    "Points - NumPy",
+    "Points - CSV",
+    "Coeff. - Matlab",
+    "Coeff. - Python",
+    "Coeff. - NumPy",
+    "Poly1D - NumPy",
+)
 
-CONTOUR_OPTIONS_TEXT = ("Canny", "Global Thresholding", "Adaptive Mean Thresholding", "Adaptive Gaussian Thresholding",
-                        "Otsu's Thresholding", "Otsu's Thresholding + Gaussian Blur")
+CONTOUR_OPTIONS_TEXT = (
+    "Canny",
+    "Global Thresholding",
+    "Adaptive Mean Thresholding",
+    "Adaptive Gaussian Thresholding",
+    "Otsu's Thresholding",
+    "Otsu's Thresholding + Gaussian Blur",
+)

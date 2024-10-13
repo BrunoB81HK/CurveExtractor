@@ -1,13 +1,27 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, \
-    QFileDialog, QMessageBox, QFrame
+from PyQt5.QtWidgets import (
+    QApplication,
+    QWidget,
+    QHBoxLayout,
+    QVBoxLayout,
+    QPushButton,
+    QFileDialog,
+    QMessageBox,
+    QFrame,
+)
 from PyQt5.QtGui import QIcon, QPalette, QColor
 from PyQt5.QtCore import Qt
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-from .widgets import QImage, QInstructBox, QCoordOption, QContoursOption, QColorsOption, QFilterOption,\
-    QEdgeSelectionOption, QEvaluationOptions
+from .widgets import (
+    QImage,
+    QInstructBox,
+    QCoordOption,
+    QFilterOption,
+    QEdgeSelectionOption,
+    QEvaluationOptions,
+)
 from .tools import get_copy_text, CurveFinder
 from .constants import *
 
@@ -21,10 +35,10 @@ import os
 
 
 class QCurveFinder(QWidget):
-    """ The application in itself """
+    """The application in itself"""
 
     def __init__(self) -> None:
-        """ Initialise the app """
+        """Initialise the app"""
         QWidget.__init__(self)
 
         # Set class variables
@@ -34,7 +48,7 @@ class QCurveFinder(QWidget):
         self.pts_final_p: List[np.ndarray] = []
         self.pts_final_r: List[np.ndarray] = []
         self.pts_eval_r: List[np.ndarray] = []
-        self.pts_coord: List[Tuple[int, int]] = [(-1, -1)]*4
+        self.pts_coord: List[Tuple[int, int]] = [(-1, -1)] * 4
         self.coef: list = []
         self.order: int = 5
         self.var: str = "x"
@@ -77,7 +91,7 @@ class QCurveFinder(QWidget):
         self.show()
 
     def __del__(self) -> None:
-        """ Remove the temporary folder """
+        """Remove the temporary folder"""
         rmtree(TEMP_PATH)
 
     def set_layout(self) -> None:
@@ -134,7 +148,9 @@ class QCurveFinder(QWidget):
     def update_layout(self, new_state: AppState) -> None:
         if new_state == AppState.COORD_ALL_SELECTED:
             return
-        elif (new_state == AppState.EQUATION_IMAGE or new_state == AppState.EQUATION_PLOT) and self.isEquationReady:
+        elif (
+            new_state == AppState.EQUATION_IMAGE or new_state == AppState.EQUATION_PLOT
+        ) and self.isEquationReady:
             return
 
         # Remove old layout
@@ -158,7 +174,9 @@ class QCurveFinder(QWidget):
         elif new_state == AppState.FILTER_CHOICE:
             self.current_layout = QFilterOption()
             self.current_layout.tabs.currentChanged.connect(self.update_image)
-            self.current_layout.contours.combo.currentTextChanged.connect(self.update_image)
+            self.current_layout.contours.combo.currentTextChanged.connect(
+                self.update_image
+            )
             self.current_layout.contours.slider1.sliderMoved.connect(self.update_image)
             self.current_layout.contours.slider2.sliderMoved.connect(self.update_image)
             self.current_layout.colors.color_changed.connect(self.update_image)
@@ -166,7 +184,9 @@ class QCurveFinder(QWidget):
 
         elif new_state == AppState.EDGE_SELECTION:
             self.current_layout = QEdgeSelectionOption()
-            self.current_layout.spinbox.valueChanged.connect(self.img.update_brush_radius)
+            self.current_layout.spinbox.valueChanged.connect(
+                self.img.update_brush_radius
+            )
 
         elif new_state == AppState.EQUATION_IMAGE:
             self.current_layout = QEvaluationOptions()
@@ -184,7 +204,7 @@ class QCurveFinder(QWidget):
         self.options.addLayout(self.current_layout)
 
     def browse_for_image(self) -> None:
-        """ Method to select an image """
+        """Method to select an image"""
         src = str(QFileDialog().getOpenFileName(filter="Images (*.png *.bmp *.jpg)")[0])
         if src != "":
             self.img_src = src
@@ -192,14 +212,17 @@ class QCurveFinder(QWidget):
             self.app_state = AppState.INITIAL  # Return to initial state
 
     def start(self) -> None:
-        """ Method for the Start button """
+        """Method for the Start button"""
         with open(self.img_src, "rb") as stream:
-            img = cv2.imdecode(np.asarray(bytearray(stream.read()), dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+            img = cv2.imdecode(
+                np.asarray(bytearray(stream.read()), dtype=np.uint8),
+                cv2.IMREAD_UNCHANGED,
+            )
         cv2.imwrite(ORIG_IMG, img)
         self.app_state = AppState.STARTED
 
     def next(self) -> None:
-        """ Method for the next button. It changes the state of the app """
+        """Method for the next button. It changes the state of the app"""
         if self.app_state == AppState.COORD_ALL_SELECTED and self.verify_coord():
             self.app_state = AppState.FILTER_CHOICE
         elif self.app_state == AppState.FILTER_CHOICE:
@@ -212,10 +235,16 @@ class QCurveFinder(QWidget):
             self.app_state = AppState.EQUATION_IMAGE
 
     def verify_coord(self) -> bool:
-        """ Method to verify if the coordinates are entered in the input boxes """
+        """Method to verify if the coordinates are entered in the input boxes"""
         good_coord = True
-        for (i, coord) in enumerate([self.current_layout.x1_coord, self.current_layout.x2_coord,
-                                     self.current_layout.y1_coord, self.current_layout.y2_coord]):
+        for i, coord in enumerate(
+            [
+                self.current_layout.x1_coord,
+                self.current_layout.x2_coord,
+                self.current_layout.y1_coord,
+                self.current_layout.y2_coord,
+            ]
+        ):
             try:
                 self.coord[i] = float(coord.line.text())
             except ValueError:
@@ -231,7 +260,7 @@ class QCurveFinder(QWidget):
         return good_coord
 
     def add_position(self, x: int, y: int, button: Qt.MouseButton) -> None:
-        """ Method used when clicking with the mouse on the image """
+        """Method used when clicking with the mouse on the image"""
         if self.app_state == AppState.STARTED:
             if not self.current_layout.x1_done:
                 self.current_layout.pts[0] = (x, y)
@@ -254,12 +283,12 @@ class QCurveFinder(QWidget):
                 self.draw_mask(x, y, 1)
 
     def draw_mask(self, x: int, y: int, color: int) -> None:
-        """ Method to draw the brush on the image """
+        """Method to draw the brush on the image"""
         radius = self.current_layout.spinbox.value()
         cv2.circle(self.mask, (x, y), radius, color, -1)
 
     def resize_and_rotate(self) -> None:  # TODO: Dewarp the image
-        """ Method to rotate the image after the coordinate are confirmed. """
+        """Method to rotate the image after the coordinate are confirmed."""
         img = cv2.imread(self.img_src)
         rot_matrix = self.curvefinder.get_rotation_matrix()
         img = cv2.warpAffine(img, rot_matrix, img.shape[1::-1], flags=cv2.INTER_LINEAR)
@@ -274,13 +303,15 @@ class QCurveFinder(QWidget):
         """
         ready_to_update = self.app_state >= AppState.FILTER_CHOICE
         if ready_to_update:
-            self.curvefinder.update_lin_log(self.current_layout.x_lin.isChecked(),
-                                            self.current_layout.y_lin.isChecked(),
-                                            ready_to_update)
+            self.curvefinder.update_lin_log(
+                self.current_layout.x_lin.isChecked(),
+                self.current_layout.y_lin.isChecked(),
+                ready_to_update,
+            )
             self.set_equation()
 
     def set_equation(self, do: bool = True) -> None:
-        """ Method to update the equation displayed in the instruction box """
+        """Method to update the equation displayed in the instruction box"""
         if do and self.app_state >= AppState.EQUATION_IMAGE:
             if self.current_layout.x_lin.isChecked():
                 x = np.array(self.pts_final_r)[:, 0]
@@ -329,27 +360,34 @@ class QCurveFinder(QWidget):
                 ey = eval_a
 
             eval_pts = []
-            for (x, y) in zip(ex, ey):
+            for x, y in zip(ex, ey):
                 eval_pts.append(np.array([x, y]))
 
             self.pts_eval_r = eval_pts
 
-            equation = get_copy_text(CopyOptions.EQUATION_MARKDOWN, self.var, self.coef, self.pts_final_r)
+            equation = get_copy_text(
+                CopyOptions.EQUATION_MARKDOWN, self.var, self.coef, self.pts_final_r
+            )
 
-            text = "The equation for this curve is :\n\n" \
-                   f"{equation}\n\n" \
-                   "For more precision, use the copy function below."
+            text = (
+                "The equation for this curve is :\n\n"
+                f"{equation}\n\n"
+                "For more precision, use the copy function below."
+            )
             self.instruct.textbox.setMarkdown(text)
 
             if self.app_state == AppState.EQUATION_PLOT:
                 self.plot_points()
 
     def update_image(self) -> None:
-        """ Method to update the image with the contour chosen in the combobox """
+        """Method to update the image with the contour chosen in the combobox"""
         if self.app_state == AppState.FILTER_CHOICE:
             if self.current_layout.tabs.currentIndex() == 0:  # On contour tab
                 img = cv2.cvtColor(cv2.imread(ROTA_IMG), cv2.COLOR_BGR2GRAY)
-                tr1, tr2 = [self.current_layout.contours.slider1.value(), self.current_layout.contours.slider2.value()]
+                tr1, tr2 = [
+                    self.current_layout.contours.slider1.value(),
+                    self.current_layout.contours.slider2.value(),
+                ]
 
                 mode = self.current_layout.contours.combo.currentIndex()
 
@@ -362,18 +400,31 @@ class QCurveFinder(QWidget):
 
                 elif mode == ContourOptions.ADAPTIVE_MEAN:
                     img = cv2.medianBlur(img, 5)
-                    img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 11, 2)
+                    img = cv2.adaptiveThreshold(
+                        img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 11, 2
+                    )
 
                 elif mode == ContourOptions.ADAPTIVE_GAUSSIAN:
                     img = cv2.medianBlur(img, 5)
-                    img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+                    img = cv2.adaptiveThreshold(
+                        img,
+                        255,
+                        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                        cv2.THRESH_BINARY,
+                        11,
+                        2,
+                    )
 
                 elif mode == ContourOptions.OTSUS:
-                    ret, img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+                    ret, img = cv2.threshold(
+                        img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
+                    )
 
                 elif mode == ContourOptions.OTSUS_GAUSSIAN_BLUR:
                     img = cv2.GaussianBlur(img, (5, 5), 0)
-                    ret, img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+                    ret, img = cv2.threshold(
+                        img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
+                    )
 
                 else:
                     pass
@@ -394,48 +445,75 @@ class QCurveFinder(QWidget):
                 thresh = self.current_layout.colors.slider.value()
 
                 # Define the range
-                lower = np.array([color.blue() - thresh, color.green() - thresh, color.red() - thresh]).clip(0, 255)
-                upper = np.array([color.blue() + thresh, color.green() + thresh, color.red() + thresh]).clip(0, 255)
+                lower = np.array(
+                    [
+                        color.blue() - thresh,
+                        color.green() - thresh,
+                        color.red() - thresh,
+                    ]
+                ).clip(0, 255)
+                upper = np.array(
+                    [
+                        color.blue() + thresh,
+                        color.green() + thresh,
+                        color.red() + thresh,
+                    ]
+                ).clip(0, 255)
 
                 # find the mask
                 mask = cv2.inRange(img, lower, upper)
-                img = cv2.addWeighted(cv2.bitwise_and(img, img, mask=mask), 0.5, img, 0.5, 0)
+                img = cv2.addWeighted(
+                    cv2.bitwise_and(img, img, mask=mask), 0.5, img, 0.5, 0
+                )
 
                 cv2.imwrite(COLO_IMG, img)
                 cv2.imwrite(CONT_IMG, mask)
                 self.img.source = COLO_IMG
 
     def plot_points(self) -> None:
-        """ Method to generate the plot image and display it """
-        fig = Figure(figsize=(MAX_IMG_W/100, MAX_IMG_H/100), dpi=100)
+        """Method to generate the plot image and display it"""
+        fig = Figure(figsize=(MAX_IMG_W / 100, MAX_IMG_H / 100), dpi=100)
         canvas = FigureCanvas(fig)
         ax = fig.gca()
 
-        x_true, y_true = [np.array(self.pts_final_r)[:, 0], np.array(self.pts_final_r)[:, 1]]
-        x_eval, y_eval = [np.array(self.pts_eval_r)[:, 0], np.array(self.pts_eval_r)[:, 1]]
-        ax.plot(x_true, y_true, 'or', label="Extracted")
-        ax.plot(x_eval, y_eval, '-b', label="Evaluated")
+        x_true, y_true = [
+            np.array(self.pts_final_r)[:, 0],
+            np.array(self.pts_final_r)[:, 1],
+        ]
+        x_eval, y_eval = [
+            np.array(self.pts_eval_r)[:, 0],
+            np.array(self.pts_eval_r)[:, 1],
+        ]
+        ax.plot(x_true, y_true, "or", label="Extracted")
+        ax.plot(x_eval, y_eval, "-b", label="Evaluated")
         ax.legend()
         ax.grid()
 
         if self.current_layout.x_lin.isChecked():
-            ax.set_xscale('linear')
+            ax.set_xscale("linear")
         else:
-            ax.set_xscale('log')
+            ax.set_xscale("log")
         if self.current_layout.y_lin.isChecked():
-            ax.set_yscale('linear')
+            ax.set_yscale("linear")
         else:
-            ax.set_yscale('log')
+            ax.set_yscale("log")
 
         canvas.draw()  # draw the canvas, cache the renderer
 
-        img = np.frombuffer(canvas.tostring_rgb(), dtype='uint8').reshape(MAX_IMG_H, MAX_IMG_W, 3)
+        img = np.frombuffer(canvas.tostring_rgb(), dtype="uint8").reshape(
+            MAX_IMG_H, MAX_IMG_W, 3
+        )
         cv2.imwrite(PLOT_IMG, img)
         self.img.source = PLOT_IMG
 
     def copy_text(self) -> None:
-        """ Method to copy certain data """
-        text = get_copy_text(self.current_layout.combo.currentIndex(), self.var, self.coef, self.pts_final_r)
+        """Method to copy certain data"""
+        text = get_copy_text(
+            self.current_layout.combo.currentIndex(),
+            self.var,
+            self.coef,
+            self.pts_final_r,
+        )
 
         if text is not None:
             QApplication.clipboard().setText(text)
@@ -446,12 +524,12 @@ class QCurveFinder(QWidget):
 
     @property
     def app_state(self) -> AppState:
-        """ Method to get the current app state """
+        """Method to get the current app state"""
         return self._app_state
 
     @app_state.setter
     def app_state(self, state: AppState) -> None:
-        """ Method where the sequence of the app is handled """
+        """Method where the sequence of the app is handled"""
         self.update_layout(state)
         self._app_state = state
 
@@ -518,7 +596,7 @@ class QCurveFinder(QWidget):
             self.img.maskEnabled = True
 
             img = cv2.cvtColor(cv2.imread(CONT_IMG), cv2.COLOR_BGR2GRAY)
-            img = np.greater(img, np.zeros(img.shape))*255  # Create the contour mask
+            img = np.greater(img, np.zeros(img.shape)) * 255  # Create the contour mask
             self.mask = np.ones(img.shape)
             cv2.imwrite(CTMK_IMG, img)
 
@@ -533,7 +611,7 @@ class QCurveFinder(QWidget):
             pts_y, pts_x = np.where(img)
 
             img = cv2.imread(ROTA_IMG)
-            for (x, y) in zip(pts_x, pts_y):
+            for x, y in zip(pts_x, pts_y):
                 a, b = self.curvefinder.pixel_to_graph((x, y))
                 self.pts_final_p.append((x, y))
                 self.pts_final_r.append(np.array([a, b]))
